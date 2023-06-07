@@ -1,10 +1,11 @@
 # GNU Make 4.4.1
 
-TARGET 	= vulkanite-server
+TARGET	= vulkanite-server
+
 
 CC		= cc
 CFLAGS	= -Wall -Wextra -pedantic
-LDFLAGS = 
+LDFLAGS	= 
 
 CFLAGS_FILE	= .cflags
 
@@ -14,15 +15,15 @@ OBJDIR	= obj
 SRC		= $(wildcard $(SRCDIR)/*.c)
 OBJ		= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 
+
 .PHONY: all verify_cflags optimized debug clean install uninstall
+
 
 all: $(OBJDIR) verify_cflags $(TARGET)
 
-# Link
 $(TARGET): $(OBJ)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-# Compile
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) -c $< -o $@ $(CFLAGS)
 
@@ -39,21 +40,6 @@ debug:
 	@make all CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" --no-print-directory
 	@gdb $(TARGET)
 
-verify_cflags:
-	@printf "CFLAGS=\"$(CFLAGS)\"\n"
-	@if [ -e $(CFLAGS_FILE) ]; then \
-		if [ "$$(cat $(CFLAGS_FILE))" != "$(CFLAGS)" ]; then \
-			printf "New CFLAGS, cleaning objects.\n"; \
-			echo "$(CFLAGS)" > $(CFLAGS_FILE); \
-			rm -frv $(OBJDIR)/*; \
-			rm -fv $(TARGET); \
-		else \
-			printf "CFLAGS identical to $(CFLAGS_FILE)\n"; \
-		fi \
-	else \
-		echo "$(CFLAGS)" > $(CFLAGS_FILE); \
-	fi
-
 clean:
 	@if [ -d obj ]; then \
 		rm -frv $(OBJDIR); \
@@ -68,3 +54,19 @@ install: optimized
 
 uninstall:
 	@rm -v /usr/bin/$(TARGET)
+
+verify_cflags:
+	@printf "CFLAGS=\"$(CFLAGS)\"\n"
+	@if [ -e $(CFLAGS_FILE) ]; then \
+		if [ "$$(cat $(CFLAGS_FILE))" != "$(CFLAGS)" ]; then \
+			printf "New CFLAGS, cleaning objects...\n"; \
+			echo "$(CFLAGS)" > $(CFLAGS_FILE); \
+			rm -frv $(OBJDIR)/*; \
+			rm -fv $(TARGET); \
+		else \
+			printf "CFLAGS are identical to $(CFLAGS_FILE)\n"; \
+		fi \
+	else \
+		echo "$(CFLAGS)" > $(CFLAGS_FILE); \
+	fi
+
